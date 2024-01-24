@@ -3,6 +3,7 @@ from substrateinterface import SubstrateInterface, Keypair, ExtrinsicReceipt
 # from substrateinterface
 import json
 from scalecodec.types import GenericExtrinsic, is_valid_ss58_address
+import hashlib
 
 
 # 获取dot-20协议下的所有extrinsic信息
@@ -36,11 +37,14 @@ class ExtrinsicCrawler:
                     call = {'call_index': '0x0000', 'call_function': 'None', 'call_module': 'None',"call_args": [{'name': 'call', 'type': 'RuntimeCall', 'value': tx.value["call"]}]}
                     print(call)
                     r = self.get_batchall_from_extrinsic(call, [])
+                    memo_hash = hashlib.blake2b(r[0][0].encode("utf-8"), digest_size=32)
+                    print(memo_hash.hexdigest())
                     print("---"*100)
                     s = json.dumps(tx.value)
                     s.replace("\'", "\"")
                     for i in receipt.triggered_events:
-                        print(i)
+                        # pass
+                        print(type(i.value), i.value)
                 elif address is None:
                     print("不是外部签名交易：", tx)
                 else:
