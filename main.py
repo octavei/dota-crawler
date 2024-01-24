@@ -7,7 +7,7 @@ import hashlib
 
 
 # 获取dot-20协议下的所有extrinsic信息
-class ExtrinsicCrawler:
+class RemarkCrawler:
     def __init__(self, substrate: SubstrateInterface, start_block=0):
         self.start_block = start_block
         # self.logger = logger
@@ -111,5 +111,5 @@ if __name__ == "__main__":
     substrate = SubstrateInterface(
         url=url,
     )
-    crawler = ExtrinsicCrawler(substrate, 235140)
+    crawler = RemarkCrawler(substrate, 235140)
     crawler.crawl()
