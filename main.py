@@ -36,7 +36,7 @@ class ExtrinsicCrawler:
                     receipt = self.get_tx_receipt(extrinsic_hash, block_hash, block_num, extrinsic_idx, True)
                     call = {'call_index': '0x0000', 'call_function': 'None', 'call_module': 'None',"call_args": [{'name': 'call', 'type': 'RuntimeCall', 'value': tx.value["call"]}]}
                     print(call)
-                    r = self.get_batchall_from_extrinsic(call, [])
+                    r = self.get_remark_from_batchall(call, [])
                     memo_hash = hashlib.blake2b(r[0][0].encode("utf-8"), digest_size=32)
                     print(memo_hash.hexdigest())
                     print("---"*100)
@@ -60,7 +60,7 @@ class ExtrinsicCrawler:
                                                        block_number=block_number,
                                                        extrinsic_idx=extrinsic_idx, finalized=finalized)
 
-    def get_batchall_from_extrinsic(self, call: dict, res: list, n_proxy=0) -> list:
+    def get_remark_from_batchall(self, call: dict, res: list, n_proxy=0) -> list:
         # 最后向函数里传递call_args
         call_args = call["call_args"]
         for call_arg in call_args:
@@ -93,7 +93,7 @@ class ExtrinsicCrawler:
                         if len(r) > 0:
                             res.append(r)
                     else:
-                        return self.get_batchall_from_extrinsic(c, res, n_proxy)
+                        return self.get_remark_from_batchall(c, res, n_proxy)
         return res
 
     def crawl(self):
