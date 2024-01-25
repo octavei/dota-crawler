@@ -89,8 +89,10 @@ class RemarkCrawler:
                             if remark_call["call_function"] == self.memo_call:
                                 remark_call_args = remark_call["call_args"]
                                 memo = remark_call_args[0]["value"]
-                                # todo memo基础过滤
                                 memo_hash = "0x" + hashlib.blake2b(memo.encode("utf-8"), digest_size=32).hexdigest()
+                                memo_json = self.filter_vail_memo(memo)
+                                if memo_json == dict():
+                                    break
                                 user_and_memo = []
                                 if n_proxy == 1:
                                     user_and_memo = ("proxy", memo, memo_hash)
@@ -139,6 +141,18 @@ class RemarkCrawler:
                     else:
                         res.append(remarks)
         return res
+
+    def filter_vail_memo(self, memo: str) -> dict:
+        try:
+            memo_json = json.loads(memo)
+        except Exception as e:
+            print(f"memo: {memo}不是json格式. err: {e}")
+            return dict()
+        if memo_json.get("p") != self.p:
+            return dict()
+        if memo_json.get("op") not in self.supported_ops:
+            return dict()
+        return memo_json
 
     @staticmethod
     def filter_remark_with_event(remark_with_event_list: list) -> list[list[dict]]:
