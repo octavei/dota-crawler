@@ -7,6 +7,7 @@ import hashlib
 
 
 # 获取dot-20协议下的所有extrinsic信息
+# 一笔交易中 不能有一模一样的两笔batchall
 class RemarkCrawler:
     def __init__(self, substrate: SubstrateInterface, start_block=0):
         self.start_block = start_block
@@ -33,18 +34,21 @@ class RemarkCrawler:
                 if address is not None and is_valid_ss58_address(address, self.substrate.ss58_format):
                     print("合法地址: {}".format(address))
                     extrinsic_hash = tx.value["extrinsic_hash"]
-                    receipt = self.get_tx_receipt(extrinsic_hash, block_hash, block_num, extrinsic_idx, True)
                     call = {'call_index': '0x0000', 'call_function': 'None', 'call_module': 'None',"call_args": [{'name': 'call', 'type': 'RuntimeCall', 'value': tx.value["call"]}]}
-                    print(call)
-                    r = self.get_remark_from_batchall(call, [])
-                    memo_hash = hashlib.blake2b(r[0][0].encode("utf-8"), digest_size=32)
-                    print(memo_hash.hexdigest())
-                    print("---"*100)
-                    s = json.dumps(tx.value)
-                    s.replace("\'", "\"")
-                    for i in receipt.triggered_events:
-                        # pass
-                        print(type(i.value), i.value)
+                    b = self.get_remark_from_batchall(call, [])
+                    b = self.filter_unique_batchall(b)
+                    if len(b) > 0:
+                        print(b)
+                        print("---"*100)
+                        s = json.dumps(tx.value)
+                        s.replace("\'", "\"")
+                        receipt = self.get_tx_receipt(extrinsic_hash, block_hash, block_num, extrinsic_idx, True)
+                        if receipt.is_success:
+                            e = self.filter_remark_with_event(list(receipt.triggered_events))
+                            print("event:", e)
+                            res = self.match_batchall_with_event(address, b, e)
+                            print("res:", res)
+
                 elif address is None:
                     print("不是外部签名交易：", tx)
                 else:
@@ -60,7 +64,7 @@ class RemarkCrawler:
                                                        block_number=block_number,
                                                        extrinsic_idx=extrinsic_idx, finalized=finalized)
 
-    def get_remark_from_batchall(self, call: dict, res: list, n_proxy=0) -> list:
+    def get_remark_from_batchall(self, call: dict, res: list, n_proxy=0) -> list[list[tuple]]:
         # 最后向函数里传递call_args
         call_args = call["call_args"]
         for call_arg in call_args:
@@ -84,8 +88,13 @@ class RemarkCrawler:
                             if remark_call["call_function"] == self.memo_call:
                                 remark_call_args = remark_call["call_args"]
                                 memo = remark_call_args[0]["value"]
-                                print(memo)
-                                r.append(memo)
+                                memo_hash = "0x" + hashlib.blake2b(memo.encode("utf-8"), digest_size=32).hexdigest()
+                                user_and_memo = []
+                                if n_proxy == 1:
+                                    user_and_memo = ("proxy", memo, memo_hash)
+                                else:
+                                    user_and_memo = ("normal", memo, memo_hash)
+                                r.append(user_and_memo)
                             else:
                                 print("batchall中参杂非remark_with_event交易")
                                 r = []
@@ -94,6 +103,60 @@ class RemarkCrawler:
                             res.append(r)
                     else:
                         return self.get_remark_from_batchall(c, res, n_proxy)
+        return res
+
+    @staticmethod
+    def filter_unique_batchall(batchall: list[list[tuple]]) -> list[list[tuple]]:
+        pass
+        res = []
+        for batchs in batchall:
+            for batch in batchs:
+                res.append(batch)
+        res_set = set(res)
+        if len(res) != len(res_set):
+            print("存在重复的batchall")
+            return []
+        return batchall
+
+    @staticmethod
+    def match_batchall_with_event(origin: str, batchall_list: list[list[tuple]], event_list: list[list[dict]]) \
+            -> list[list[dict]]:
+        res = []
+        for events in event_list:
+            for batchall in batchall_list:
+                if len(batchall) == len(events):
+                    # 长度相同 说明可能在同一个事件中
+                    remarks = []
+                    for batch, event in zip(batchall, events):
+                        if batch[0] == "proxy" and event["sender"] == origin:
+                            break
+                        if batch[2] != event["hash"]:
+                            break
+                        remark = {"origin": origin, "sender": event["sender"], "memo": batch[1], "hash": batch[2]}
+                        remarks.append(remark)
+                    else:
+                        res.append(remarks)
+        return res
+
+    @staticmethod
+    def filter_remark_with_event(remark_with_event_list: list) -> list[list[dict]]:
+        res = []
+        batch_remark = []
+        for index, remark_dict in enumerate(remark_with_event_list):
+            # print(remark_dict)
+            if index + 2 < len(remark_with_event_list):
+                if remark_dict.value["event_id"] == "Remarked":
+                    batch_remark.append(remark_dict.value["attributes"])
+                    if remark_with_event_list[index + 1].value["event_id"] == "ItemCompleted" \
+                            and remark_with_event_list[index + 2].value["event_id"] == "BatchCompleted":
+                        res.append(batch_remark)
+                        batch_remark = []
+
+                    elif remark_with_event_list[index + 1].value["event_id"] == "ItemCompleted" and \
+                            remark_with_event_list[index + 2].value["event_id"] == "Remarked":
+                        continue
+                    else:
+                        batch_remark = []
         return res
 
     def crawl(self):
