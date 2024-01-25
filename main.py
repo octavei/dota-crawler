@@ -21,6 +21,7 @@ class RemarkCrawler:
         self.memo_call = "remark_with_event"
         # remark中支持的协议只能是dot-20
         self.p = "dot-20"
+        self.supported_ops = ["deploy", "mint", "transfer", "approve", "transferFrom", "memo"]
         self.substrate = substrate
 
     def get_supported_extrinsics_by_block_num(self, block_num: int) -> list:
@@ -88,6 +89,7 @@ class RemarkCrawler:
                             if remark_call["call_function"] == self.memo_call:
                                 remark_call_args = remark_call["call_args"]
                                 memo = remark_call_args[0]["value"]
+                                # todo memo基础过滤
                                 memo_hash = "0x" + hashlib.blake2b(memo.encode("utf-8"), digest_size=32).hexdigest()
                                 user_and_memo = []
                                 if n_proxy == 1:
@@ -97,10 +99,10 @@ class RemarkCrawler:
                                 r.append(user_and_memo)
                             else:
                                 print("batchall中参杂非remark_with_event交易")
-                                r = []
                                 break
-                        if len(r) > 0:
-                            res.append(r)
+                        else:
+                            if len(r) > 0:
+                                res.append(r)
                     else:
                         return self.get_remark_from_batchall(c, res, n_proxy)
         return res
