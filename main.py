@@ -57,7 +57,7 @@ class RemarkCrawler:
             else:
                 print(" 不是支持的交易")
 
-        return extrinsics
+        return res
 
     def get_tx_receipt(self, extrinsic_hash, block_hash, block_number, extrinsic_idx, finalized):
         return ExtrinsicReceipt(self.substrate, extrinsic_hash=extrinsic_hash,
@@ -149,8 +149,10 @@ class RemarkCrawler:
             print(f"memo: {memo}不是json格式. err: {e}")
             return dict()
         if memo_json.get("p") != self.p:
+            print("非法协议{}".format(memo_json.get("p")))
             return dict()
         if memo_json.get("op") not in self.supported_ops:
+            print("非法操作{}".format(memo_json.get("op")))
             return dict()
         return memo_json
 
