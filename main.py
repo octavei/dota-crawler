@@ -136,7 +136,7 @@ class RemarkCrawler:
                             break
                         if batch[2] != event["hash"]:
                             break
-                        remark = {"origin": origin, "sender": event["sender"], "memo": batch[1], "hash": batch[2]}
+                        remark = {"signer": origin, "user": event["sender"], "memo": batch[1], "hash": batch[2]}
                         remarks.append(remark)
                     else:
                         res.append(remarks)
