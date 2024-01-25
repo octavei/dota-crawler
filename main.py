@@ -41,8 +41,8 @@ class RemarkCrawler:
                     if len(b) > 0:
                         print(b)
                         print("---"*100)
-                        s = json.dumps(tx.value)
-                        s.replace("\'", "\"")
+                        # s = json.dumps(tx.value)
+                        # s.replace("\'", "\"")
                         receipt = self.get_tx_receipt(extrinsic_hash, block_hash, block_num, extrinsic_idx, True)
                         if receipt.is_success:
                             e = self.filter_remark_with_event(list(receipt.triggered_events))
@@ -95,9 +95,9 @@ class RemarkCrawler:
                                     break
                                 user_and_memo = []
                                 if n_proxy == 1:
-                                    user_and_memo = ("proxy", memo, memo_hash)
+                                    user_and_memo = ("proxy", memo_json, memo_hash)
                                 else:
-                                    user_and_memo = ("normal", memo, memo_hash)
+                                    user_and_memo = ("normal", memo_json, memo_hash)
                                 r.append(user_and_memo)
                             else:
                                 print("batchall中参杂非remark_with_event交易")
