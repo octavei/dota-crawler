@@ -24,7 +24,7 @@ class RemarkCrawler:
         self.supported_ops = ["deploy", "mint", "transfer", "approve", "transferFrom", "memo"]
         self.substrate = substrate
 
-    def get_supported_batchalls_by_block_num(self, block_num: int) -> list:
+    def get_dota_remarks_by_block_num(self, block_num: int) -> list:
         extrinsics = self.substrate.get_extrinsics(block_number=block_num)
         block_hash = self.substrate.get_block_hash(block_num)
         res = []
@@ -46,8 +46,9 @@ class RemarkCrawler:
                         receipt = self.get_tx_receipt(extrinsic_hash, block_hash, block_num, extrinsic_idx, True)
                         if receipt.is_success:
                             e = self.filter_remarks(list(receipt.triggered_events))
-                            print("event:", e)
+                            # print("event:", e)
                             res = self.match_batchalls_with_events(address, b, e)
+                            res = self.get_remarks(res, block_num, block_hash, extrinsic_hash, extrinsic_idx)
                             print("res:", res)
 
                 elif address is None:
@@ -136,7 +137,7 @@ class RemarkCrawler:
                             break
                         if batch[2] != event["hash"]:
                             break
-                        remark = {"signer": origin, "user": event["sender"], "memo": batch[1], "hash": batch[2]}
+                        remark = {"origin": origin, "user": event["sender"], "memo": batch[1], "hash": batch[2]}
                         remarks.append(remark)
                     else:
                         res.append(remarks)
@@ -155,6 +156,15 @@ class RemarkCrawler:
             print("非法操作{}".format(memo_json.get("op")))
             return dict()
         return memo_json
+
+    def get_remarks(self, res: list[list[dict]], block_num, block_hash, tx_hash, extrinsic_index) -> list[dict]:
+        result = []
+        for b_index, batchall in enumerate(res):
+            for r_index, remark in enumerate(batchall):
+                result.append({"block_num": block_num, "block_hash": block_hash, "block_hash": block_hash,
+                               "tx_hash": tx_hash, "extrinsic_index": extrinsic_index, "batchall_index": b_index,
+                               "remark_index": r_index, "remark_hash": remark["hash"], "origin": remark["origin"], "user": remark["user"], "memo": remark["memo"]})
+        return result
 
     @staticmethod
     def filter_remarks(remark_with_event_list: list) -> list[list[dict]]:
@@ -183,7 +193,7 @@ class RemarkCrawler:
             latest_block_num = self.substrate.get_block_number(latest_block_hash)
             if self.start_block <= latest_block_num:
                 print(f"开始爬取区块高度为#{self.start_block}的extrinsics")
-                self.get_supported_batchalls_by_block_num(self.start_block)
+                self.get_dota_remarks_by_block_num(self.start_block)
                 self.start_block += 1
 
 
