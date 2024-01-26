@@ -1,7 +1,7 @@
 本项目会从一个特定区块开始去获取链上所有dota协议相关数据，并进行一定的过滤
 # 克隆项目
 ```
-https://github.com/octavei/dota-crawler.git
+https://github.com/octavei/dota-indexer-crawler.git
 ```
 # 创建python虚拟环境并激活
 ```angular2html
