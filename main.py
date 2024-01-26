@@ -9,8 +9,9 @@ import hashlib
 # 获取dot-20协议下的所有extrinsic信息
 # 一笔交易中 不能有一模一样的两笔batchall
 class RemarkCrawler:
-    def __init__(self, substrate: SubstrateInterface, start_block=0):
+    def __init__(self, substrate: SubstrateInterface, delay: int, start_block=0):
         self.start_block = start_block
+        self.delay = delay
         # self.logger = logger
         # 代理跟签名 不能间接代理
         self.proxy_module = ["Multisig", "Proxy"]
@@ -192,7 +193,7 @@ class RemarkCrawler:
         while True:
             latest_block_hash = self.substrate.get_chain_finalised_head()
             latest_block_num = self.substrate.get_block_number(latest_block_hash)
-            if self.start_block <= latest_block_num:
+            if self.start_block + self.delay <= latest_block_num:
                 print(f"开始爬取区块高度为#{self.start_block}的extrinsics")
                 self.get_dota_remarks_by_block_num(self.start_block)
                 self.start_block += 1
@@ -203,5 +204,6 @@ if __name__ == "__main__":
     substrate = SubstrateInterface(
         url=url,
     )
-    crawler = RemarkCrawler(substrate, 235140)
+    delay = 2
+    crawler = RemarkCrawler(substrate, delay, 273004)
     crawler.crawl()
