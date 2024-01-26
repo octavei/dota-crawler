@@ -40,7 +40,6 @@ class RemarkCrawler:
                     b = self.get_batchalls_from_extrinsic(call, [])
                     b = self.filter_unique_batchalls(b)
                     if len(b) > 0:
-                        print(b)
                         print("---"*100)
                         # s = json.dumps(tx.value)
                         # s.replace("\'", "\"")
@@ -49,8 +48,8 @@ class RemarkCrawler:
                             e = self.filter_remarks(list(receipt.triggered_events))
                             # print("event:", e)
                             res = self.match_batchalls_with_events(address, b, e)
-                            res = self.get_remarks(res, block_num, block_hash, extrinsic_hash, extrinsic_idx)
-                            print("res:", res)
+                            res = self.get_remarks(res=res, block_num=block_num, block_hash=block_hash, tx_hash=extrinsic_hash, extrinsic_index=extrinsic_idx)
+                            print("获取链上数据:\n", json.dumps(res, indent=2))
 
                 elif address is None:
                     print("不是外部签名交易：", tx)
@@ -93,6 +92,7 @@ class RemarkCrawler:
                                 memo = remark_call_args[0]["value"]
                                 memo_hash = "0x" + hashlib.blake2b(memo.encode("utf-8"), digest_size=32).hexdigest()
                                 memo_json = self.filter_vail_memo(memo)
+                                memo_json = json.dumps(memo_json)
                                 if memo_json == dict():
                                     break
                                 user_and_memo = []
@@ -134,6 +134,7 @@ class RemarkCrawler:
                     # 长度相同 说明可能在同一个事件中
                     remarks = []
                     for batch, event in zip(batchall, events):
+
                         if batch[0] == "proxy" and event["sender"] == origin:
                             break
                         if batch[2] != event["hash"]:
@@ -159,7 +160,7 @@ class RemarkCrawler:
         return memo_json
 
     @staticmethod
-    def get_remarks(self, res: list[list[dict]], block_num, block_hash, tx_hash, extrinsic_index) -> list[dict]:
+    def get_remarks(res: list[list[dict]], block_num, block_hash, tx_hash, extrinsic_index) -> list[dict]:
         result = []
         for b_index, batchall in enumerate(res):
             for r_index, remark in enumerate(batchall):
@@ -205,5 +206,5 @@ if __name__ == "__main__":
         url=url,
     )
     delay = 2
-    crawler = RemarkCrawler(substrate, delay, 273004)
+    crawler = RemarkCrawler(substrate, delay, 273115)
     crawler.crawl()
