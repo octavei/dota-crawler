@@ -24,7 +24,7 @@ class RemarkCrawler:
         self.supported_ops = ["deploy", "mint", "transfer", "approve", "transferFrom", "memo"]
         self.substrate = substrate
 
-    def get_supported_extrinsics_by_block_num(self, block_num: int) -> list:
+    def get_supported_batchalls_by_block_num(self, block_num: int) -> list:
         extrinsics = self.substrate.get_extrinsics(block_number=block_num)
         block_hash = self.substrate.get_block_hash(block_num)
         res = []
@@ -36,8 +36,8 @@ class RemarkCrawler:
                     print("合法地址: {}".format(address))
                     extrinsic_hash = tx.value["extrinsic_hash"]
                     call = {'call_index': '0x0000', 'call_function': 'None', 'call_module': 'None',"call_args": [{'name': 'call', 'type': 'RuntimeCall', 'value': tx.value["call"]}]}
-                    b = self.get_remark_from_batchall(call, [])
-                    b = self.filter_unique_batchall(b)
+                    b = self.get_batchalls_from_extrinsic(call, [])
+                    b = self.filter_unique_batchalls(b)
                     if len(b) > 0:
                         print(b)
                         print("---"*100)
@@ -45,9 +45,9 @@ class RemarkCrawler:
                         # s.replace("\'", "\"")
                         receipt = self.get_tx_receipt(extrinsic_hash, block_hash, block_num, extrinsic_idx, True)
                         if receipt.is_success:
-                            e = self.filter_remark_with_event(list(receipt.triggered_events))
+                            e = self.filter_remarks(list(receipt.triggered_events))
                             print("event:", e)
-                            res = self.match_batchall_with_event(address, b, e)
+                            res = self.match_batchalls_with_events(address, b, e)
                             print("res:", res)
 
                 elif address is None:
@@ -65,7 +65,7 @@ class RemarkCrawler:
                                                        block_number=block_number,
                                                        extrinsic_idx=extrinsic_idx, finalized=finalized)
 
-    def get_remark_from_batchall(self, call: dict, res: list, n_proxy=0) -> list[list[tuple]]:
+    def get_batchalls_from_extrinsic(self, call: dict, res: list, n_proxy=0) -> list[list[tuple]]:
         # 最后向函数里传递call_args
         call_args = call["call_args"]
         for call_arg in call_args:
@@ -106,11 +106,11 @@ class RemarkCrawler:
                             if len(r) > 0:
                                 res.append(r)
                     else:
-                        return self.get_remark_from_batchall(c, res, n_proxy)
+                        return self.get_batchalls_from_extrinsic(c, res, n_proxy)
         return res
 
     @staticmethod
-    def filter_unique_batchall(batchall: list[list[tuple]]) -> list[list[tuple]]:
+    def filter_unique_batchalls(batchall: list[list[tuple]]) -> list[list[tuple]]:
         pass
         res = []
         for batchs in batchall:
@@ -123,7 +123,7 @@ class RemarkCrawler:
         return batchall
 
     @staticmethod
-    def match_batchall_with_event(origin: str, batchall_list: list[list[tuple]], event_list: list[list[dict]]) \
+    def match_batchalls_with_events(origin: str, batchall_list: list[list[tuple]], event_list: list[list[dict]]) \
             -> list[list[dict]]:
         res = []
         for events in event_list:
@@ -157,7 +157,7 @@ class RemarkCrawler:
         return memo_json
 
     @staticmethod
-    def filter_remark_with_event(remark_with_event_list: list) -> list[list[dict]]:
+    def filter_remarks(remark_with_event_list: list) -> list[list[dict]]:
         res = []
         batch_remark = []
         for index, remark_dict in enumerate(remark_with_event_list):
@@ -183,7 +183,7 @@ class RemarkCrawler:
             latest_block_num = self.substrate.get_block_number(latest_block_hash)
             if self.start_block <= latest_block_num:
                 print(f"开始爬取区块高度为#{self.start_block}的extrinsics")
-                self.get_supported_extrinsics_by_block_num(self.start_block)
+                self.get_supported_batchalls_by_block_num(self.start_block)
                 self.start_block += 1
 
 
