@@ -48,7 +48,7 @@ class RemarkCrawler:
                             e = self.filter_remarks(list(receipt.triggered_events))
                             # print("event:", e)
                             res = self.match_batchalls_with_events(address, b, e)
-                            res = self.get_remarks(res=res, block_num=block_num, block_hash=block_hash, tx_hash=extrinsic_hash, extrinsic_index=extrinsic_idx)
+                            res = self.get_remarks(res=res, block_num=block_num, block_hash=block_hash,extrinsic_hash=extrinsic_hash, extrinsic_index=extrinsic_idx)
                             print("获取链上数据:\n", json.dumps(res, indent=2))
 
                 elif address is None:
@@ -160,13 +160,13 @@ class RemarkCrawler:
         return memo_json
 
     @staticmethod
-    def get_remarks(res: list[list[dict]], block_num, block_hash, tx_hash, extrinsic_index) -> list[dict]:
+    def get_remarks(res: list[list[dict]], block_num, block_hash, extrinsic_hash, extrinsic_index) -> list[dict]:
         result = []
         for b_index, batchall in enumerate(res):
             for r_index, remark in enumerate(batchall):
-                result.append({"block_num": block_num, "block_hash": block_hash, "block_hash": block_hash,
-                               "tx_hash": tx_hash, "extrinsic_index": extrinsic_index, "batchall_index": b_index,
-                               "remark_index": r_index, "remark_hash": remark["hash"], "origin": remark["origin"], "user": remark["user"], "memo": remark["memo"]})
+                result.append({"block_num": block_num, "block_hash": block_hash, "extrinsic_hash": extrinsic_hash,
+                               "extrinsic_index": extrinsic_index, "batchall_index": b_index,"remark_index": r_index,
+                               "remark_hash": remark["hash"], "origin": remark["origin"], "user": remark["user"], "memo": remark["memo"]})
         return result
 
     @staticmethod
