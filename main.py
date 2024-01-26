@@ -157,6 +157,7 @@ class RemarkCrawler:
             return dict()
         return memo_json
 
+    @staticmethod
     def get_remarks(self, res: list[list[dict]], block_num, block_hash, tx_hash, extrinsic_index) -> list[dict]:
         result = []
         for b_index, batchall in enumerate(res):
