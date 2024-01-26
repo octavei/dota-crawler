@@ -14,7 +14,7 @@ class RemarkCrawler:
         self.delay = delay
         # self.logger = logger
         # 代理跟签名 不能间接代理
-        self.proxy_module = ["Multisig", "Proxy"]
+        # self.proxy_module = ["Multisig", "Proxy"]
         self.supported_extrinsic = ["batch", "batch_all", "proxy", "proxy_announced", "as_multi_threshold1", "approve_as_multi", ]
         # 支持的交易中必须有batchall
         self.must_contain_call = "batch_all"
@@ -78,11 +78,11 @@ class RemarkCrawler:
                     base_call = call_arg["value"]
 
                 for c in base_call:
-                    if c["call_module"] in self.proxy_module:
-                        n_proxy += 1
-                    if c["call_module"] in self.proxy_module and n_proxy == 2:
-                        n_proxy = 1
-                        continue
+                    # if c["call_module"] in self.proxy_module:
+                    #     n_proxy += 1
+                    # if c["call_module"] in self.proxy_module and n_proxy == 2:
+                    #     n_proxy = 1
+                    #     continue
                     if c["call_function"] == self.must_contain_call and c["call_module"] == "Utility":
                         remark_calls = c["call_args"][0]["value"]
                         r = []
