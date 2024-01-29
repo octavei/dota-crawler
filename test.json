@@ -1,1 +1,50 @@
-{"extrinsic_hash": "0xe94337f4cf78ebc4ce770d10ec295dce88f6c6f5fc71b4026a2cc37061380ec8", "extrinsic_length": 161, "address": "5FTcboVf86hubC8YJjo8LjK3c2uq2rWpK7idnrfazi4ePuZy", "signature": {"Sr25519": "0x8a1ae59c665fef7b945678ede102a7e4a05598aff3a31b4a46850263c5812c28f5b6523513470741d9064355662b3fd52ee480049ba3ff4499d4b063de077288"}, "era": [64, 35], "nonce": 7, "tip": 0, "call": {"call_index": "0x1e00", "call_function": "proxy", "call_module": "Proxy", "call_args": [{"name": "real", "type": "AccountIdLookupOf", "value": "5HpyGn7jBaZW3iMTNtN9fHgDRvAFgR8uxX2sNbG4zdDsus8A"}, {"name": "force_proxy_type", "type": "Option<ProxyType>", "value": null}, {"name": "call", "type": "RuntimeCall", "value": {"call_index": "0x1800", "call_function": "batch", "call_module": "Utility", "call_args": [{"name": "calls", "type": "Vec<RuntimeCall>", "value": [{"call_index": "0x1802", "call_function": "batch_all", "call_module": "Utility", "call_args": [{"name": "calls", "type": "Vec<RuntimeCall>", "value": [{"call_index": "0x0000", "call_function": "remark", "call_module": "System", "call_args": [{"name": "remark", "type": "Bytes", "value": "\u00124V\u0010"}], "call_hash": "0x683352a270969ce337751c276550abdef412dfc82fa59e52ba695c416a18b9eb"}]}], "call_hash": "0xaf1d735f35fc1517da3487bdaef6a4cd4c7b3576a588874ce01204ff09b1b287"}, {"call_index": "0x1802", "call_function": "batch_all", "call_module": "Utility", "call_args": [{"name": "calls", "type": "Vec<RuntimeCall>", "value": [{"call_index": "0x0000", "call_function": "remark", "call_module": "System", "call_args": [{"name": "remark", "type": "Bytes", "value": "0x987651"}], "call_hash": "0xf6fd1955b39c3e939a67652dd60230ae2ac5bd57f5f226f92b0ef8b7bc745e4a"}]}], "call_hash": "0x8d6c55bc0223964c130736780c881d35fe394d8c8bb6699820d48f0b0aedff99"}]}], "call_hash": "0x781c7d04feca0445fe870bfbd7cd68f166ba2f9028993e6870b557137884610c"}}], "call_hash": "0xc05a2f2dda1091346ed57015d642d1d11f7d236abf4c05f640c1b40623eff23c"}}
+[
+  {
+    "block_num": 273115,
+    "block_hash": "0x240079607dbb76c81b974be2256fbf79ed809995a973e1b3b1292c6b5ec4d7d0",
+    "extrinsic_hash": "0x9cef5f083d7ed72098bfe6768d65602d8fa196c696bcf3456a4e5a982e45aa7a",
+    "extrinsic_index": 2,
+    "batchall_index": 0,
+    "remark_index": 0,
+    "remark_hash": "0x98f4b6890ae25bb9dd975a50f320fc1ab0cfbbd92673a55c9fc58ffac25aedfb",
+    "origin": "5FTcboVf86hubC8YJjo8LjK3c2uq2rWpK7idnrfazi4ePuZy",
+    "user": "5FTcboVf86hubC8YJjo8LjK3c2uq2rWpK7idnrfazi4ePuZy",
+    "memo": "{\"p\": \"dot-20\", \"op\": \"transfer\", \"tick\": \"dota\", \"amt\": 1000000, \"to\": \"15Dfr41oVWMhqKD6qL1pj6gZEE6vzNQ9RH8ShefFsoReVWsi\"}"
+  },
+  {
+    "block_num": 273115,
+    "block_hash": "0x240079607dbb76c81b974be2256fbf79ed809995a973e1b3b1292c6b5ec4d7d0",
+    "extrinsic_hash": "0x9cef5f083d7ed72098bfe6768d65602d8fa196c696bcf3456a4e5a982e45aa7a",
+    "extrinsic_index": 2,
+    "batchall_index": 0,
+    "remark_index": 1,
+    "remark_hash": "0x1f3177d7e5fb35b708bb77b83f562e9122fecd46283c50a5c999b9802c8efc6a",
+    "origin": "5FTcboVf86hubC8YJjo8LjK3c2uq2rWpK7idnrfazi4ePuZy",
+    "user": "5FTcboVf86hubC8YJjo8LjK3c2uq2rWpK7idnrfazi4ePuZy",
+    "memo": "{\"p\": \"dot-20\", \"op\": \"transfer\", \"tick\": \"dota\", \"amt\": 2000000, \"to\": \"15Dfr41oVWMhqKD6qL1pj6gZEE6vzNQ9RH8ShefFsoReVWsi\"}"
+  },
+  {
+    "block_num": 273115,
+    "block_hash": "0x240079607dbb76c81b974be2256fbf79ed809995a973e1b3b1292c6b5ec4d7d0",
+    "extrinsic_hash": "0x9cef5f083d7ed72098bfe6768d65602d8fa196c696bcf3456a4e5a982e45aa7a",
+    "extrinsic_index": 2,
+    "batchall_index": 0,
+    "remark_index": 2,
+    "remark_hash": "0x2b3fe133ad45c7180c8b763dbd8b933277611f8b3b00c8066d3cdc2b51743220",
+    "origin": "5FTcboVf86hubC8YJjo8LjK3c2uq2rWpK7idnrfazi4ePuZy",
+    "user": "5FTcboVf86hubC8YJjo8LjK3c2uq2rWpK7idnrfazi4ePuZy",
+    "memo": "{\"p\": \"dot-20\", \"op\": \"transfer\", \"tick\": \"dota\", \"amt\": 3000000, \"to\": \"15Dfr41oVWMhqKD6qL1pj6gZEE6vzNQ9RH8ShefFsoReVWsi\"}"
+  },
+  {
+    "block_num": 273115,
+    "block_hash": "0x240079607dbb76c81b974be2256fbf79ed809995a973e1b3b1292c6b5ec4d7d0",
+    "extrinsic_hash": "0x9cef5f083d7ed72098bfe6768d65602d8fa196c696bcf3456a4e5a982e45aa7a",
+    "extrinsic_index": 2,
+    "batchall_index": 0,
+    "remark_index": 3,
+    "remark_hash": "0xb1c5bc2862c7a97a223157f44f74450a7835649e59f094995538a4492187f529",
+    "origin": "5FTcboVf86hubC8YJjo8LjK3c2uq2rWpK7idnrfazi4ePuZy",
+    "user": "5FTcboVf86hubC8YJjo8LjK3c2uq2rWpK7idnrfazi4ePuZy",
+    "memo": "{\"p\": \"dot-20\", \"op\": \"memo\", \"text\": \"test 3 transfer\"}"
+  }
+]

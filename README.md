@@ -14,7 +14,7 @@ pip install -r requirements.txt
 ```
 # 运行爬虫
 ```angular2html
-python main.py
+python crawler.py
 ```
 
 # 测试点
