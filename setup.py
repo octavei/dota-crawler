@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='dota-crawler',
-    version='0.1.0',
+    name='dotacrawler',
+    version='0.1.1',
     packages=find_packages(),
     install_requires=[
         'websocket-client>=0.57.0,<2',
