@@ -166,7 +166,7 @@ class RemarkCrawler:
             for r_index, remark in enumerate(batchall):
                 result.append({"block_num": block_num, "block_hash": block_hash, "extrinsic_hash": extrinsic_hash,
                                "extrinsic_index": extrinsic_index, "batchall_index": b_index,"remark_index": r_index,
-                               "remark_hash": remark["hash"], "origin": remark["origin"], "user": remark["user"], "memo": remark["memo"]})
+                               "remark_hash": remark["hash"], "origin": remark["origin"], "user": remark["user"], "memo": json.loads(remark["memo"])})
         return result
 
     @staticmethod
