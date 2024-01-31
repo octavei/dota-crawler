@@ -25,7 +25,7 @@ class RemarkCrawler:
         self.supported_ops = ["deploy", "mint", "transfer", "approve", "transferFrom", "memo"]
         self.substrate = substrate
 
-    def get_dota_remarks_by_block_num(self, block_num: int) -> list:
+    def get_dota_remarks_by_block_num(self, block_num: int) -> list[dict]:
         extrinsics = self.substrate.get_extrinsics(block_number=block_num)
         block_hash = self.substrate.get_block_hash(block_num)
         ress = []
@@ -49,7 +49,8 @@ class RemarkCrawler:
                             # print("event:", e)
                             res = self.match_batchalls_with_events(address, b, e)
                             res = self.get_remarks(res=res, block_num=block_num, block_hash=block_hash,extrinsic_hash=extrinsic_hash, extrinsic_index=extrinsic_idx)
-                            res.extend(res)
+                            # res.extend(res)
+                            ress.extend(res)
                             print("获取链上数据:\n", json.dumps(res, indent=2))
 
                 elif address is None:
