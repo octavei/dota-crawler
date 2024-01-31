@@ -28,7 +28,7 @@ class RemarkCrawler:
     def get_dota_remarks_by_block_num(self, block_num: int) -> list:
         extrinsics = self.substrate.get_extrinsics(block_number=block_num)
         block_hash = self.substrate.get_block_hash(block_num)
-        res = []
+        ress = []
         for extrinsic_idx, tx in enumerate(extrinsics):
             extrinsic = tx.value.get("call").get("call_function")
             if extrinsic in self.supported_extrinsic:
@@ -49,6 +49,7 @@ class RemarkCrawler:
                             # print("event:", e)
                             res = self.match_batchalls_with_events(address, b, e)
                             res = self.get_remarks(res=res, block_num=block_num, block_hash=block_hash,extrinsic_hash=extrinsic_hash, extrinsic_index=extrinsic_idx)
+                            res.extend(res)
                             print("获取链上数据:\n", json.dumps(res, indent=2))
 
                 elif address is None:
@@ -58,7 +59,7 @@ class RemarkCrawler:
             else:
                 print(" 不是支持的交易")
 
-        return res
+        return ress
 
     def get_tx_receipt(self, extrinsic_hash, block_hash, block_number, extrinsic_idx, finalized):
         return ExtrinsicReceipt(self.substrate, extrinsic_hash=extrinsic_hash,
