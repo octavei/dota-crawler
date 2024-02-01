@@ -1,5 +1,6 @@
 from logging import Logger
 from substrateinterface import SubstrateInterface, Keypair, ExtrinsicReceipt
+from substrateinterface.exceptions import SubstrateRequestException
 # from substrateinterface
 import json
 from scalecodec.types import GenericExtrinsic, is_valid_ss58_address
@@ -26,39 +27,42 @@ class RemarkCrawler:
         self.substrate = substrate
 
     def get_dota_remarks_by_block_num(self, block_num: int) -> list[dict]:
-        extrinsics = self.substrate.get_extrinsics(block_number=block_num)
-        block_hash = self.substrate.get_block_hash(block_num)
-        ress = []
-        for extrinsic_idx, tx in enumerate(extrinsics):
-            extrinsic = tx.value.get("call").get("call_function")
-            if extrinsic in self.supported_extrinsic:
-                address = tx.value.get("address")
-                if address is not None and is_valid_ss58_address(address, self.substrate.ss58_format):
-                    print("合法地址: {}".format(address))
-                    extrinsic_hash = tx.value["extrinsic_hash"]
-                    call = {'call_index': '0x0000', 'call_function': 'None', 'call_module': 'None',"call_args": [{'name': 'call', 'type': 'RuntimeCall', 'value': tx.value["call"]}]}
-                    b = self.get_batchalls_from_extrinsic(call, [])
-                    b = self.filter_unique_batchalls(b)
-                    if len(b) > 0:
-                        print("---"*100)
-                        # s = json.dumps(tx.value)
-                        # s.replace("\'", "\"")
-                        receipt = self.get_tx_receipt(extrinsic_hash, block_hash, block_num, extrinsic_idx, True)
-                        if receipt.is_success:
-                            e = self.filter_remarks(list(receipt.triggered_events))
-                            # print("event:", e)
-                            res = self.match_batchalls_with_events(address, b, e)
-                            res = self.get_remarks(res=res, block_num=block_num, block_hash=block_hash,extrinsic_hash=extrinsic_hash, extrinsic_index=extrinsic_idx)
-                            # res.extend(res)
-                            ress.extend(res)
-                            print("获取链上数据:\n", json.dumps(res, indent=2))
+        try:
+            extrinsics = self.substrate.get_extrinsics(block_number=block_num)
+            block_hash = self.substrate.get_block_hash(block_num)
+            ress = []
+            for extrinsic_idx, tx in enumerate(extrinsics):
+                extrinsic = tx.value.get("call").get("call_function")
+                if extrinsic in self.supported_extrinsic:
+                    address = tx.value.get("address")
+                    if address is not None and is_valid_ss58_address(address, self.substrate.ss58_format):
+                        print("合法地址: {}".format(address))
+                        extrinsic_hash = tx.value["extrinsic_hash"]
+                        call = {'call_index': '0x0000', 'call_function': 'None', 'call_module': 'None',"call_args": [{'name': 'call', 'type': 'RuntimeCall', 'value': tx.value["call"]}]}
+                        b = self.get_batchalls_from_extrinsic(call, [])
+                        b = self.filter_unique_batchalls(b)
+                        if len(b) > 0:
+                            print("---"*100)
+                            # s = json.dumps(tx.value)
+                            # s.replace("\'", "\"")
+                            receipt = self.get_tx_receipt(extrinsic_hash, block_hash, block_num, extrinsic_idx, True)
+                            if receipt.is_success:
+                                e = self.filter_remarks(list(receipt.triggered_events))
+                                # print("event:", e)
+                                res = self.match_batchalls_with_events(address, b, e)
+                                res = self.get_remarks(res=res, block_num=block_num, block_hash=block_hash,extrinsic_hash=extrinsic_hash, extrinsic_index=extrinsic_idx)
+                                # res.extend(res)
+                                ress.extend(res)
+                                print("获取链上数据:\n", json.dumps(res, indent=2))
 
-                elif address is None:
-                    print("不是外部签名交易：", tx)
+                    elif address is None:
+                        print("不是外部签名交易：", tx)
+                    else:
+                        print("非法ss58地址: {}".format(address))
                 else:
-                    print("非法ss58地址: {}".format(address))
-            else:
-                print(" 不是支持的交易")
+                    print(" 不是支持的交易")
+        except (ConnectionError, SubstrateRequestException) as e:
+            raise e
 
         return ress
 
