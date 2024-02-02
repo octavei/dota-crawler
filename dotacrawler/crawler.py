@@ -5,6 +5,7 @@ from substrateinterface.exceptions import SubstrateRequestException
 import json
 from scalecodec.types import GenericExtrinsic, is_valid_ss58_address
 import hashlib
+from websocket import WebSocketConnectionClosedException, WebSocketTimeoutException
 
 
 # 获取dot-20协议下的所有extrinsic信息
@@ -61,7 +62,7 @@ class RemarkCrawler:
                         print("非法ss58地址: {}".format(address))
                 else:
                     print(" 不是支持的交易")
-        except (ConnectionError, SubstrateRequestException) as e:
+        except (ConnectionError, SubstrateRequestException, WebSocketConnectionClosedException, WebSocketTimeoutException) as e:
             raise e
 
         return ress
