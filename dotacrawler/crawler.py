@@ -158,7 +158,7 @@ class RemarkCrawler:
         except Exception as e:
             print(f"memo: {memo}不是json格式. err: {e}")
             return dict()
-        if memo_json.get("p") != self.p:
+        if ascii(memo_json.get("p")) != self.p:
             print("非法协议{}".format(memo_json.get("p")))
             return dict()
         if memo_json.get("op") not in self.supported_ops:
