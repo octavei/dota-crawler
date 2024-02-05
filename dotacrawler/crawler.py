@@ -23,7 +23,7 @@ class RemarkCrawler:
         # batch_all中只能有remark_with_event
         self.memo_call = "remark_with_event"
         # remark中支持的协议只能是dot-20
-        self.p = "dot-20"
+        self.p = ascii("dot-20")
         self.supported_ops = ["deploy", "mint", "transfer", "approve", "transferFrom", "memo"]
         self.substrate = substrate
 
