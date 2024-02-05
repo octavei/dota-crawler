@@ -37,13 +37,13 @@ class RemarkCrawler:
                 if extrinsic in self.supported_extrinsic:
                     address = tx.value.get("address")
                     if address is not None and is_valid_ss58_address(address, self.substrate.ss58_format):
-                        print("合法地址: {}".format(address))
+                        # print("合法地址: {}".format(address))
                         extrinsic_hash = tx.value["extrinsic_hash"]
                         call = {'call_index': '0x0000', 'call_function': 'None', 'call_module': 'None',"call_args": [{'name': 'call', 'type': 'RuntimeCall', 'value': tx.value["call"]}]}
                         b = self.get_batchalls_from_extrinsic(call, [])
                         b = self.filter_unique_batchalls(b)
                         if len(b) > 0:
-                            print("---"*100)
+                            # print("---"*100)
                             # s = json.dumps(tx.value)
                             # s.replace("\'", "\"")
                             receipt = self.get_tx_receipt(extrinsic_hash, block_hash, block_num, extrinsic_idx, True)
@@ -57,11 +57,12 @@ class RemarkCrawler:
                                 print("获取链上数据:\n", json.dumps(res, indent=2))
 
                     elif address is None:
-                        print("不是外部签名交易：", tx)
+                        pass
                     else:
-                        print("非法ss58地址: {}".format(address))
+                        print(f"非法ss58地址: {address}, tx: {tx}")
                 else:
-                    print(" 不是支持的交易")
+                    pass
+                    # print(" 不是支持的交易")
         except (ConnectionError, SubstrateRequestException, WebSocketConnectionClosedException, WebSocketTimeoutException) as e:
             raise e
 
