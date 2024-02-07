@@ -165,6 +165,11 @@ class RemarkCrawler:
         if memo_json.get("op") not in self.supported_ops:
             print("非法操作{}".format(memo_json.get("op")))
             return dict()
+        if isinstance(memo_json, dict):
+            pass
+        else:
+            print("memo不是字典格式")
+            return dict()
         return memo_json
 
     @staticmethod

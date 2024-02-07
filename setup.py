@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='dotacrawler',
-    version='0.1.13',
+    version='0.1.15',
     packages=find_packages(),
     install_requires=[
         'websocket-client>=0.57.0,<2',
