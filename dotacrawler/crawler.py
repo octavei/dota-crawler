@@ -8,21 +8,19 @@ import hashlib
 from websocket import WebSocketConnectionClosedException, WebSocketTimeoutException
 
 
-# 获取dot-20协议下的所有extrinsic信息
-# 一笔交易中 不能有一模一样的两笔batchall
+# There cannot be two identical batchalls in one transaction
 class RemarkCrawler:
     def __init__(self, substrate: SubstrateInterface, delay: int, start_block=0):
         self.start_block = start_block
         self.delay = delay
         # self.logger = logger
-        # 代理跟签名 不能间接代理
         # self.proxy_module = ["Multisig", "Proxy"]
         self.supported_extrinsic = ["batch", "batch_all", "proxy", "proxy_announced", "as_multi_threshold1", "approve_as_multi", ]
-        # 支持的交易中必须有batchall
+        # Batchall must be included in supported extrinsics
         self.must_contain_call = "batch_all"
-        # batch_all中只能有remark_with_event
+        # There can only be remark_with_event in batch_all
         self.memo_call = "remark_with_event"
-        # remark中支持的协议只能是dot-20
+        # The protocol supported in remark can only be dot-20
         self.p = ascii("dot-20")
         self.supported_ops = ["deploy", "mint", "transfer", "approve", "transferFrom", "memo"]
         self.substrate = substrate
@@ -37,32 +35,25 @@ class RemarkCrawler:
                 if extrinsic in self.supported_extrinsic:
                     address = tx.value.get("address")
                     if address is not None and is_valid_ss58_address(address, self.substrate.ss58_format):
-                        # print("合法地址: {}".format(address))
                         extrinsic_hash = tx.value["extrinsic_hash"]
                         call = {'call_index': '0x0000', 'call_function': 'None', 'call_module': 'None',"call_args": [{'name': 'call', 'type': 'RuntimeCall', 'value': tx.value["call"]}]}
                         b = self.get_batchalls_from_extrinsic(call, [])
                         b = self.filter_unique_batchalls(b)
                         if len(b) > 0:
-                            # print("---"*100)
-                            # s = json.dumps(tx.value)
-                            # s.replace("\'", "\"")
                             receipt = self.get_tx_receipt(extrinsic_hash, block_hash, block_num, extrinsic_idx, True)
                             if receipt.is_success:
                                 e = self.filter_remarks(list(receipt.triggered_events))
-                                # print("event:", e)
                                 res = self.match_batchalls_with_events(address, b, e)
                                 res = self.get_remarks(res=res, block_num=block_num, block_hash=block_hash,extrinsic_hash=extrinsic_hash, extrinsic_index=extrinsic_idx)
-                                # res.extend(res)
                                 ress.extend(res)
-                                print("获取链上数据:\n", json.dumps(res, indent=2))
+                                print("Get successful transaction on the chain:\n", json.dumps(res, indent=2))
 
                     elif address is None:
                         pass
                     else:
-                        print(f"非法ss58地址: {address}, tx: {tx}")
+                        print(f"Illegal ss58 address:: {address}, tx: {tx}")
                 else:
                     pass
-                    # print(" 不是支持的交易")
         except (ConnectionError, SubstrateRequestException, WebSocketConnectionClosedException, WebSocketTimeoutException) as e:
             raise e
 
@@ -75,7 +66,6 @@ class RemarkCrawler:
                                                        extrinsic_idx=extrinsic_idx, finalized=finalized)
 
     def get_batchalls_from_extrinsic(self, call: dict, res: list, n_proxy=0) -> list[list[tuple]]:
-        # 最后向函数里传递call_args
         call_args = call["call_args"]
         for call_arg in call_args:
             if call_arg["type"] == "RuntimeCall" or call_arg["type"] == "Vec<RuntimeCall>":
@@ -110,7 +100,7 @@ class RemarkCrawler:
                                     user_and_memo = ("normal", memo_json, memo_hash)
                                 r.append(user_and_memo)
                             else:
-                                print("batchall中参杂非remark_with_event交易")
+                                print("Batchall is mixed with non-remark_with_event transactions")
                                 break
                         else:
                             if len(r) > 0:
@@ -128,7 +118,7 @@ class RemarkCrawler:
                 res.append(batch)
         res_set = set(res)
         if len(res) != len(res_set):
-            print("存在重复的batchall")
+            print("There are duplicate batchalls")
             return []
         return batchall
 
@@ -139,7 +129,7 @@ class RemarkCrawler:
         for events in event_list:
             for batchall in batchall_list:
                 if len(batchall) == len(events):
-                    # 长度相同 说明可能在同一个事件中
+                    # The same length indicates that they may be in the same event
                     remarks = []
                     for batch, event in zip(batchall, events):
 
@@ -157,18 +147,18 @@ class RemarkCrawler:
         try:
             memo_json = json.loads(memo)
         except Exception as e:
-            print(f"memo: {memo}不是json格式. err: {e}")
+            print(f"memo: {memo} not in json format. err: {e}")
             return dict()
         if ascii(memo_json.get("p")) != self.p:
-            print("非法协议{}".format(memo_json.get("p")))
+            print("p not dot-20, {}".format(memo_json.get("p")))
             return dict()
         if memo_json.get("op") not in self.supported_ops:
-            print("非法操作{}".format(memo_json.get("op")))
+            print("Not supported ops, {}".format(memo_json.get("op")))
             return dict()
         if isinstance(memo_json, dict):
             pass
         else:
-            print("memo不是字典格式")
+            print("memo is not in dict format")
             return dict()
         return memo_json
 
@@ -187,7 +177,6 @@ class RemarkCrawler:
         res = []
         batch_remark = []
         for index, remark_dict in enumerate(remark_with_event_list):
-            # print(remark_dict)
             if index + 2 < len(remark_with_event_list):
                 if remark_dict.value["event_id"] == "Remarked":
                     batch_remark.append(remark_dict.value["attributes"])
@@ -208,16 +197,17 @@ class RemarkCrawler:
             latest_block_hash = self.substrate.get_chain_finalised_head()
             latest_block_num = self.substrate.get_block_number(latest_block_hash)
             if self.start_block + self.delay <= latest_block_num:
-                print(f"开始爬取区块高度为#{self.start_block}的extrinsics")
+                print(f"crawling block height is #{self.start_block}")
                 self.get_dota_remarks_by_block_num(self.start_block)
                 self.start_block += 1
 
 
 if __name__ == "__main__":
-    url = "wss://rect.me"
-    substrate = SubstrateInterface(
-        url=url,
-    )
-    delay = 2
-    crawler = RemarkCrawler(substrate, delay, 273115)
-    crawler.crawl()
+    pass
+    # url = "wss://rect.me"
+    # substrate = SubstrateInterface(
+    #     url=url,
+    # )
+    # delay = 2
+    # crawler = RemarkCrawler(substrate, delay, 273115)
+    # crawler.crawl()
